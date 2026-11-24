@@ -876,7 +876,8 @@ struct DYMessagesScreen: View {
 
     /// Both panes keep their identity while resizing. Explicit widths make the
     /// divider authoritative; ArrangementView treats layout ratios as preferences.
-    @ContentBuilder
+    // iOS 18 移植：@ContentBuilder 是 iOS 27 SDK 的属性；some View 属性用 @ViewBuilder 语义等价。
+    @ViewBuilder
     private var messageContent: some View {
         if #available(iOS 27.1, *) {
             // 老板定：整个信息界面靠左，右边一条跟视频页同款的右侧栏（内外屏、横竖屏同一套）。

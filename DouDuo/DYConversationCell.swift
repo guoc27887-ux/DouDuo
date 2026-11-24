@@ -64,7 +64,8 @@ struct DYConversationCell: View {
         .accessibilityHidden(!followsMe)
     }
 
-    @ContentBuilder private var badge: some View {
+    // iOS 18 移植：@ContentBuilder 是 iOS 27 SDK 的属性；some View 属性用 @ViewBuilder 语义等价。
+    @ViewBuilder private var badge: some View {
         if !row.badge.isEmpty {
             Text(row.badge).font(.caption2.weight(.bold)).foregroundStyle(.white)
                 .padding(.horizontal, 6).padding(.vertical, 2)

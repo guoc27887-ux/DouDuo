@@ -179,6 +179,13 @@ struct DYFollowMetadataCache {
     private var storedAt: Date?
     private var items: [DYFollowMetadata] = []
 
+    // iOS 18 移植：含 private 存储属性时成员初始化器是 private，
+    // iOS 26 SDK 的编译器不许同文件其他类型调用（上游在 iOS 27 工具链下能过）。
+    // 显式写出同一个初始化器，语义与成员初始化器完全一致。
+    init(ttl: TimeInterval) {
+        self.ttl = ttl
+    }
+
     mutating func store(_ items: [DYFollowMetadata], now: Date) {
         guard !items.isEmpty else { return }
         self.items = items
