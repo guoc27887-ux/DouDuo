@@ -129,6 +129,11 @@ enum DYToolbarVisibilityPriority {
 }
 
 extension ToolbarContent {
+    /// 对应 iOS 27 的 ToolbarContent.hidden：iOS 26 SDK 里同名方法被标为 unavailable。
+    /// 调用方 DYNativeVideoActions 整体是 iOS 27.1 限定类型，iOS 18 上不会实例化，
+    /// 这里只需编译期透传（iOS 27 设备上跑此包时该项不会被隐藏，与原意略有出入）。
+    func dyHidden(_ hidden: Bool = true) -> Self { self }
+
     /// 只影响系统竖栏存在时工具项的排布方向，iPhone 无竖栏：透传。
     func axisBehavior(_ behavior: DYToolbarAxisBehavior) -> Self { self }
 

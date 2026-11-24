@@ -230,7 +230,7 @@ struct DYNativeVideoActions: View {
                 })
             }
             .dyVerticalPreferredHigh()
-            .hidden(onBack == nil ? actions == nil || showsInlineCleanControl : verticalEdge == nil)
+            .dyHidden(onBack == nil ? actions == nil || showsInlineCleanControl : verticalEdge == nil)
 
             // The stable controls anchor is independent of this group's size.
             // A new item identity invalidates the native cached fitting size.
@@ -256,7 +256,7 @@ struct DYNativeVideoActions: View {
             }
             .dySharedBackgroundHidden()
             .dyVerticalPreferredHigh()
-            .hidden(actions == nil || verticalEdge == nil || isClean)
+            .dyHidden(actions == nil || verticalEdge == nil || isClean)
         }
         // Retain the last measured slot across navigation and sheets.
     }

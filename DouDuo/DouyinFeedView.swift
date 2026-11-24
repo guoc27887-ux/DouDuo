@@ -3204,6 +3204,41 @@ struct DYClassicFeedScreen: DYRecommendFeedHost {
     }
 
     var body: some View {
+        bodyStageOne
+        .onChange(of: bridge.followSession) { _, _ in
+            followList.resetModel()
+            followCurrentID = nil
+        }
+        .task { await refreshNoticeUnread() }
+        .task {
+            #if DEBUG
+            // 模拟器无触摸输入：DOUDUO_MSGTEST=1 → 起播后自动打开消息页
+            if ProcessInfo.processInfo.environment["DOUDUO_MSGTEST"] == "1" {
+                try? await Task.sleep(for: .seconds(8))
+                showMessages = true
+                DYLiveModel.log("DDMSGTEST auto-open messages")
+            }
+            #endif
+        }
+        .task {
+            // 只预取一页直播元数据，不拉流、不进房；用户点直播时不必再从零等列表。
+            guard tab != .live else { return }
+            do { try await Task.sleep(for: .seconds(2)) } catch { return }
+            guard live.rooms.isEmpty, !Task.isCancelled else { return }
+            await live.load(bridge, reset: true)
+        }
+        .onChange(of: showMessages) { _, open in
+            if open { DYMessageOpenProbe.tapped() }
+            if !open { Task { await refreshNoticeUnread() } }
+        }
+        .modifier(DYDMBannerModifier(messagesVisible: showMessages, openMessages: { showMessages = true }))
+        // 启动查新版本 / 刚升级完显示一次本次更新内容
+        .modifier(DDReleaseNotesModifier())
+    }
+
+    /// iOS 18 移植：body 的修饰符链太长（200 多行），iOS 26 SDK 的类型检查器在链中段超时
+    /// （原 3417 行 await live.load 处报错）。把前半段拆成独立属性，修饰符内容与顺序原样不变。
+    private var bodyStageOne: some View {
         systemTabs
         .modifier(DYSearchPresentation(bridge: bridge, session: $searchSession, isSplit: $searchIsSplit,
                                       onOpen: { showComments = false }))
@@ -3394,35 +3429,6 @@ struct DYClassicFeedScreen: DYRecommendFeedHost {
         }
         .sheet(isPresented: $showAppLogin, onDismiss: { reloadAfterLogin() }) { DYAppLoginScreen() }
         .modifier(DYSessionLostAlert { showAppLogin = true })
-        .onChange(of: bridge.followSession) { _, _ in
-            followList.resetModel()
-            followCurrentID = nil
-        }
-        .task { await refreshNoticeUnread() }
-        .task {
-            #if DEBUG
-            // 模拟器无触摸输入：DOUDUO_MSGTEST=1 → 起播后自动打开消息页
-            if ProcessInfo.processInfo.environment["DOUDUO_MSGTEST"] == "1" {
-                try? await Task.sleep(for: .seconds(8))
-                showMessages = true
-                DYLiveModel.log("DDMSGTEST auto-open messages")
-            }
-            #endif
-        }
-        .task {
-            // 只预取一页直播元数据，不拉流、不进房；用户点直播时不必再从零等列表。
-            guard tab != .live else { return }
-            do { try await Task.sleep(for: .seconds(2)) } catch { return }
-            guard live.rooms.isEmpty, !Task.isCancelled else { return }
-            await live.load(bridge, reset: true)
-        }
-        .onChange(of: showMessages) { _, open in
-            if open { DYMessageOpenProbe.tapped() }
-            if !open { Task { await refreshNoticeUnread() } }
-        }
-        .modifier(DYDMBannerModifier(messagesVisible: showMessages, openMessages: { showMessages = true }))
-        // 启动查新版本 / 刚升级完显示一次本次更新内容
-        .modifier(DDReleaseNotesModifier())
     }
 
     private var systemTabs: some View {
