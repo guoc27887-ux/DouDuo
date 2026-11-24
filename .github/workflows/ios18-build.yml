@@ -34,18 +34,42 @@ jobs:
 
       - name: Build Release app without signing
         run: |
-          set -o pipefail
+          mkdir -p build
+          set +e
           xcodebuild -project DouDuo.xcodeproj -scheme DouDuo -configuration Release -sdk iphoneos \
             -destination 'generic/platform=iOS' -derivedDataPath build/DD build \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
-            | tee build/xcodebuild.log | grep -E "error:|warning: .*deprecated|BUILD" || true
-          test -d build/DD/Build/Products/Release-iphoneos/DouDuo.app
+            > build/xcodebuild.log 2>&1
+          XC_STATUS=$?
+          set -e
+          grep -E "error:|BUILD" build/xcodebuild.log | tail -40 || true
+          if [ "$XC_STATUS" -ne 0 ]; then
+            echo "::error::xcodebuild failed with exit code $XC_STATUS — see build log artifact"
+            exit 1
+          fi
+          grep -q "BUILD SUCCEEDED" build/xcodebuild.log
+
+      - name: Verify built app bundle
+        run: |
+          APP=build/DD/Build/Products/Release-iphoneos/DouDuo.app
+          test -d "$APP"
+          EXE=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP/Info.plist")
+          echo "CFBundleExecutable = $EXE"
+          test -n "$EXE"
+          test -f "$APP/$EXE"
+          file "$APP/$EXE"
+          file "$APP/$EXE" | grep -q "Mach-O"
+          MINOS=$(/usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' "$APP/Info.plist")
+          echo "MinimumOSVersion = $MINOS"
+          test "$MINOS" = "18.0"
+          ls -la "$APP/$EXE"
 
       - name: Package unsigned IPA
         run: |
           rm -rf build/ipa && mkdir -p build/ipa/Payload
           cp -R build/DD/Build/Products/Release-iphoneos/DouDuo.app build/ipa/Payload/
           (cd build/ipa && zip -qry ../DouDuo-1.7.2-ios18-unsigned.ipa Payload)
+          unzip -l build/DouDuo-1.7.2-ios18-unsigned.ipa | grep -E "Payload/DouDuo.app/DouDuo$"
           ls -la build/DouDuo-1.7.2-ios18-unsigned.ipa
 
       - name: Upload unsigned IPA
