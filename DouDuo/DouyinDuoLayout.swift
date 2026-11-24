@@ -878,6 +878,29 @@ extension View {
         if #available(iOS 26.0, *) { self.glassEffect(.regular, in: shape) }
         else { self.background(.ultraThinMaterial, in: shape) }
     }
+    /// iOS 18 移植：interactive 玻璃变体（iOS 26 以下回退材质底）。
+    @ViewBuilder func dyPanelGlass<S: Shape>(in shape: S, interactive: Bool) -> some View {
+        if #available(iOS 26.0, *) {
+            if interactive { self.glassEffect(.regular.interactive(), in: shape) }
+            else { self.glassEffect(.regular, in: shape) }
+        }
+        else { self.background(.ultraThinMaterial, in: shape) }
+    }
+    /// iOS 18 移植：enabled=false 时等价于 .glassEffect(.identity)（无效果）。
+    @ViewBuilder func dyPanelGlass<S: Shape>(in shape: S, enabled: Bool) -> some View {
+        if enabled { self.dyPanelGlass(in: shape) }
+        else { self }
+    }
+    /// iOS 18 移植：scrollEdgeEffectHidden 是 iOS 26 API；低版本无滚动边缘效果，直接透传。
+    @ViewBuilder func dyScrollEdgeEffectHidden(_ hidden: Bool = true, for edges: Edge.Set) -> some View {
+        if #available(iOS 26.0, *) { self.scrollEdgeEffectHidden(hidden, for: edges) }
+        else { self }
+    }
+    /// iOS 18 移植：.glassProminent 是 iOS 26 按钮样式；低版本回退 .borderedProminent。
+    @ViewBuilder func dyGlassProminentButtonStyle() -> some View {
+        if #available(iOS 26.0, *) { self.buttonStyle(.glassProminent) }
+        else { self.buttonStyle(.borderedProminent) }
+    }
 }
 
 private struct DYStandaloneBarPolicy: ViewModifier {

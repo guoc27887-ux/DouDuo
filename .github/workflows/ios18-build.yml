@@ -1,0 +1,64 @@
+name: Build unsigned IPA (iOS 18 port)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ios18-compat
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build unsigned IPA
+    runs-on: macos-26
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Fetch VLCKit binary
+        run: sh scripts/fetch-vlckit.sh
+
+      - name: Generate project
+        run: xcodegen generate
+
+      - name: Build Release app without signing
+        run: |
+          set -o pipefail
+          xcodebuild -project DouDuo.xcodeproj -scheme DouDuo -configuration Release -sdk iphoneos \
+            -destination 'generic/platform=iOS' -derivedDataPath build/DD build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            | tee build/xcodebuild.log | grep -E "error:|warning: .*deprecated|BUILD" || true
+          test -d build/DD/Build/Products/Release-iphoneos/DouDuo.app
+
+      - name: Package unsigned IPA
+        run: |
+          rm -rf build/ipa && mkdir -p build/ipa/Payload
+          cp -R build/DD/Build/Products/Release-iphoneos/DouDuo.app build/ipa/Payload/
+          (cd build/ipa && zip -qry ../DouDuo-1.7.2-ios18-unsigned.ipa Payload)
+          ls -la build/DouDuo-1.7.2-ios18-unsigned.ipa
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: douduo-ios18-unsigned-ipa
+          path: build/DouDuo-1.7.2-ios18-unsigned.ipa
+          if-no-files-found: error
+
+      - name: Upload build log
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: douduo-ios18-build-log
+          path: build/xcodebuild.log
+          if-no-files-found: warn

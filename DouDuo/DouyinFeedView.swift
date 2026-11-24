@@ -3469,7 +3469,7 @@ struct DYClassicFeedScreen: DYRecommendFeedHost {
                         .toolbarBackgroundVisibility(.hidden, for: .navigationBar, .bottomBar)
                         .toolbarColorScheme(.dark, for: .navigationBar, .bottomBar)
                         .toolbarMinimizationBehavior(.never, for: .navigationBar)
-                        .scrollEdgeEffectHidden(true, for: .all)
+                        .dyScrollEdgeEffectHidden(true, for: .all)
                         // Hide the underlying native selector for compact
                         // sheets too, so dismissing comments does not restore
                         // a previously expanded tab picker over the video rail.
@@ -4769,7 +4769,7 @@ struct DYClassicVideoPage: View {
         actions(foreground)
             .frame(width: railWidth)
             .padding(.vertical, 7)
-            .glassEffect(.regular, in: .capsule)
+            .dyPanelGlass(in: .capsule)
             .environment(\.colorScheme, .dark)
             .modifier(DYHoldBoostArea(control: item.images.isEmpty ? boost : nil))
     }

@@ -1185,7 +1185,7 @@ struct DYGrid: View {
                             .padding(.horizontal, 16).padding(.vertical, 10)
                     }
                     .buttonStyle(.plain)
-                    .glassEffect(.regular.interactive(), in: .capsule)
+                    .dyPanelGlass(in: .capsule, interactive: true)
                     .padding(.bottom, 20)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .accessibilityIdentifier("douyin.author.jumpRecent")
@@ -2992,6 +2992,19 @@ final class DYPagedModelHolder: ObservableObject {
 extension ToolbarContent {
     @ToolbarContentBuilder func dyVerticalPreferred() -> some ToolbarContent {
         if #available(iOS 27.1, *) { self.axisBehavior(.verticalPreferred) }
+        else { self }
+    }
+}
+
+extension ToolbarContent {
+    /// iOS 18 移植：axisBehavior / visibilityPriority 是 iOS 27.1 API，低版本透传。
+    @ToolbarContentBuilder func dyVerticalPreferredHigh() -> some ToolbarContent {
+        if #available(iOS 27.1, *) { self.axisBehavior(.verticalPreferred).visibilityPriority(.high) }
+        else { self }
+    }
+    /// iOS 18 移植：sharedBackgroundVisibility 是 iOS 26 API，低版本透传。
+    @ToolbarContentBuilder func dySharedBackgroundHidden() -> some ToolbarContent {
+        if #available(iOS 26.0, *) { self.sharedBackgroundVisibility(.hidden) }
         else { self }
     }
 }

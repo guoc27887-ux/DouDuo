@@ -663,7 +663,7 @@ struct DYMessagesScreen: View {
                         }
                     }
                     .toolbarBackgroundVisibility(.hidden, for: .navigationBar)
-                    .scrollEdgeEffectHidden(true, for: .all)
+                    .dyScrollEdgeEffectHidden(true, for: .all)
                     .toolbar {
                         // iOS 27.1+ 简洁/极简：返回 / 分类 / 更多 / 我的 全在自绘右侧栏（messageRail），样式和位置跟视频页右侧栏一致。
                         // 经典模式：系统竖栏本身有 我的/消息/首页 Tab，再画一根栏会叠在同一列 →
@@ -703,7 +703,7 @@ struct DYMessagesScreen: View {
                     ProgressView()
                     Text("正在打开“\(forwardedShare.contact.name)”")
                 }
-                .padding(24).glassEffect(.regular, in: .rect(cornerRadius: 20))
+                .padding(24).dyPanelGlass(in: .rect(cornerRadius: 20))
             }
         }
         .alert("暂未打开会话", isPresented: $shareOpenFailed) {
@@ -1020,7 +1020,7 @@ struct DYMessagesScreen: View {
                         .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
-                .glassEffect(.regular.interactive(), in: .circle)
+                .dyPanelGlass(in: .circle, interactive: true)
                 .disabled(openingChat != nil)
                 .accessibilityLabel("返回")
                 .accessibilityIdentifier(!showingMine && navigation.hasDetail ? "douyin.messages.back" : "douyin.messages.close")
@@ -1038,14 +1038,14 @@ struct DYMessagesScreen: View {
                 }
                 .padding(.vertical, 8)
                 .frame(width: Self.railWidth)
-                .glassEffect(.regular, in: .capsule)
+                .dyPanelGlass(in: .capsule)
             } else {
                 // 「我的」页：「账号」放在分类组的位置，整组高度跟信息页四个分类一样（空着占位），
                 // 两页栏高一致，返回键不上下跳
                 VStack(spacing: theme.media.actionItemSpacing) {
                     railButton(icon: "person.2.circle", title: "账号", selected: false, badge: 0,
                                id: "douyin.mine.accounts") { NotificationCenter.default.post(name: .dyOpenAccounts, object: nil) }
-                    .glassEffect(.regular, in: .capsule)
+                    .dyPanelGlass(in: .capsule)
                     Spacer(minLength: 0)
                 }
                 .padding(.vertical, 8)
@@ -1068,7 +1068,7 @@ struct DYMessagesScreen: View {
                 }
                     .padding(.vertical, 6)
                     .frame(width: Self.railWidth)
-                    .glassEffect(.regular, in: .capsule)
+                    .dyPanelGlass(in: .capsule)
             }
         }
         // 跟视频页右侧栏同一套避让：状态栏（时间/信号环）显示时是系统遮挡区，
@@ -1682,7 +1682,7 @@ struct DYMessagesScreen: View {
                 .listRowBackground(Color.clear)
             }
             .listStyle(.plain)
-            .scrollEdgeEffectHidden(true, for: .all)
+            .dyScrollEdgeEffectHidden(true, for: .all)
             .scrollContentBackground(.hidden)
             .scrollIndicators(.hidden)
             .accessibilityIdentifier("douyin.messages.list")
@@ -1774,7 +1774,7 @@ struct DYMessagesScreen: View {
         }
         .padding(.vertical, 8)
         .frame(width: Self.railWidth)
-        .glassEffect(.regular, in: .capsule)
+        .dyPanelGlass(in: .capsule)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("douyin.messages.rail")
     }

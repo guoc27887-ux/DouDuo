@@ -60,7 +60,7 @@ struct DYStorageScreen: View {
             }
         }
         .scrollContentBackground(.hidden)
-        .scrollEdgeEffectHidden(true, for: .bottom)
+        .dyScrollEdgeEffectHidden(true, for: .bottom)
         .background(Color.ddBackground)
         .safeAreaInset(edge: .bottom, spacing: 0) { cleanupBar }
         .navigationTitle("储存空间")
@@ -157,7 +157,7 @@ struct DYStorageScreen: View {
                 Text(clearing ? "正在清理…" : "清理缓存")
                     .frame(maxWidth: .infinity, minHeight: 24)
             }
-            .buttonStyle(.glassProminent)
+            .dyGlassProminentButtonStyle()
             .tint(Color(red: 1, green: 59.0 / 255, blue: 48.0 / 255))
             .buttonBorderShape(.capsule)
             .controlSize(.large)

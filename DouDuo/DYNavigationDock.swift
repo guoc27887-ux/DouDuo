@@ -200,14 +200,14 @@ struct DYNativeVideoActions: View {
             if verticalEdge == nil, let onBack {
                 standaloneControls(onBack)
                     .buttonStyle(.plain)
-                    .glassEffect(.regular, in: .capsule)
+                    .dyPanelGlass(in: .capsule)
                     .padding(.leading, 8)
                     .padding(.top, 8)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else if showsInlineCleanControl, actions != nil {
                 cleanButton
                     .buttonStyle(.plain)
-                    .glassEffect(.regular, in: .circle)
+                    .dyPanelGlass(in: .circle)
                     .padding(.trailing, 17)
                     .padding(.top, DYDuoMetrics.isDuoHardware ? 8 : max(inlineTopInset ?? DYDuoMetrics.windowSafeTop, 8) + 52)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
@@ -229,8 +229,7 @@ struct DYNativeVideoActions: View {
                     }
                 })
             }
-            .axisBehavior(.verticalPreferred)
-            .visibilityPriority(.high)
+            .dyVerticalPreferredHigh()
             .hidden(onBack == nil ? actions == nil || showsInlineCleanControl : verticalEdge == nil)
 
             // The stable controls anchor is independent of this group's size.
@@ -246,7 +245,7 @@ struct DYNativeVideoActions: View {
                         actions.share
                     }
                     .padding(.vertical, 5)
-                    .glassEffect(.regular, in: .capsule)
+                    .dyPanelGlass(in: .capsule)
                     .environment(\.colorScheme, .dark)
                     .accessibilityElement(children: .contain)
                     .accessibilityIdentifier("douyin.video.actions")
@@ -255,9 +254,8 @@ struct DYNativeVideoActions: View {
                     .modifier(DYHoldBoostArea(control: actions.boost))
                 }
             }
-            .sharedBackgroundVisibility(.hidden)
-            .axisBehavior(.verticalPreferred)
-            .visibilityPriority(.high)
+            .dySharedBackgroundHidden()
+            .dyVerticalPreferredHigh()
             .hidden(actions == nil || verticalEdge == nil || isClean)
         }
         // Retain the last measured slot across navigation and sheets.
